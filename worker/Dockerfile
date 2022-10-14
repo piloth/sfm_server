@@ -13,6 +13,7 @@ RUN pip3 install \
         opencv-contrib-python \
         numpy \
 	paramiko \
-        commandr
+        commandr \
+	plyfile
 
 ADD scripts /var/scripts

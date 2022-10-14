@@ -1,11 +1,16 @@
+# std. library
 import os
 import sys
-
-from commandr import command, Run
-
-import numpy as np
 import struct
 import collections
+from logging import config, getLogger
+
+# third party
+from commandr import command, Run
+import numpy as np
+
+# modules
+from modules.PosePly import Pose
 
 
 CameraModel = collections.namedtuple(
@@ -70,10 +75,18 @@ def read_images_binary(path_to_model_file):
 
 @command
 def check_images_pose(path_to_model_file):
+    logger = getLogger(__name__)
     images = read_images_binary(path_to_model_file)
+    pose = Pose()
     for image in images.values():
-        print(image.id, image.qvec, image.tvec)
+        logger.debug(f"{image.id} {image.qvec} {image.tvec}")
+        pose.add(image.id, image.qvec, image.tvec)
 
+    pose.savePly("out.ply")
 
 if __name__ == "__main__":
+    # logger from config file
+    config.fileConfig(os.path.join(os.path.dirname(__file__), 'logconf.ini'))
+    logger = getLogger(__name__)
+
     Run()
