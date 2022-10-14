@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  worker:
+    image: worker:0.1.0
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    command: sleep 9999d
+    volumes:
+            - type: bind
+              source: ./worker/scripts
+              target: /var/scripts
+            - workspace:/var/workspace
+            - ssh_dir:/root/.ssh
+
+  colmap:
+    image: colmap:3.7
+    build:
+      context: ./colmap
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+            - workspace:/var/workspace
+            - ssh_dir:/root/.ssh
+volumes:
+        ssh_dir:
+        workspace:
