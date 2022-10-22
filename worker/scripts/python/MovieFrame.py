@@ -40,6 +40,53 @@ def step_decimation(movie_file, step, output_dir):
         else:
             return
 
+def get_matching_ratio(frame1, frame2):
+    if frame2 is None:
+        ratio = 0.0
+    else:
+        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+        akaze = cv2.AKAZE_create()
+        kp1, des1 = akaze.detectAndCompute(gray1,None)
+        kp2, des2 = akaze.detectAndCompute(gray2,None)
+        #bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+        #matches = bf.match(des1, des2)
+        bf = cv2.BFMatcher()
+        matches = bf.knnMatch(des1, des2, k=2)
+
+        ratio = 0.5
+        good = []
+        for m, n in matches:
+            if m.distance < ratio * n.distance:
+                good.append([m])
+        ratio = len(good) / len(kp1)
+
+    return ratio
+
+@command
+def matching_decimation(movie_file, overlap_ratio, output_dir):
+    overlap_ratio = float(overlap_ratio)
+    logger = getLogger(__name__)
+    logger.info(f"{movie_file}, {overlap_ratio}, {output_dir}")
+    # open movie_file
+    cap = cv2.VideoCapture(movie_file)
+    # create output_dir
+    os.makedirs(output_dir, exist_ok=True)
+    cnt = 0
+    past_frame = None
+    while True:
+        ret, frame = cap.read()
+        if ret:
+            matching_ratio = get_matching_ratio(frame, past_frame)
+            logger.debug(f"{cnt} {matching_ratio}")
+            if matching_ratio < overlap_ratio:
+                output_file = os.path.join(output_dir, f"{cnt:06d}.png")
+                logger.debug(f"output_file: {output_file}")
+                cv2.imwrite(output_file, frame)
+                past_frame = frame
+            cnt += 1
+        else:
+            return
 
 if __name__ == "__main__":
     # logger from config file
