@@ -57,9 +57,11 @@ class Pose:
         for p in self.pose.values():
             self.logger.info(f"{p}")
             q = np.quaternion(p.qvec[0], p.qvec[1], p.qvec[2], p.qvec[3])
-            vertex.append(p.tvec)
+            qinv = q.inverse()
+            pos = - quaternion.rotate_vectors(qinv, p.tvec)
+            vertex.append(pos)
             for i in range(4):
-                vertex.append(p.tvec + quaternion.rotate_vectors(q, rect_image[i]))
+                vertex.append(pos + quaternion.rotate_vectors(qinv, rect_image[i]))
             face.append(([v_cnt, v_cnt+1, v_cnt+2], red, green, blue))
             face.append(([v_cnt, v_cnt+2, v_cnt+3], red, green, blue))
             face.append(([v_cnt, v_cnt+3, v_cnt+4], red, green, blue))
