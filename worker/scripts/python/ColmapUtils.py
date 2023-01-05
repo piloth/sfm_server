@@ -79,7 +79,7 @@ def check_images_pose(path_to_model_file):
     images = read_images_binary(path_to_model_file)
     pose = Pose()
     for image in images.values():
-        logger.debug(f"{image.id} {image.qvec} {image.tvec}")
+        logger.debug(f"{image.id} {image.name} {image.qvec} {image.tvec}")
         pose.add(image.id, image.qvec, image.tvec)
 
     pose.savePly("out.ply")

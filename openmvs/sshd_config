@@ -1,0 +1,8 @@
+PermitRootLogin yes
+IgnoreUserKnownHosts yes
+PasswordAuthentication no
+RSAAuthentication yes
+PubkeyAuthentication yes
+AuthorizedKeysFile     /root/.ssh/authorized_keys
+Port 20023
+

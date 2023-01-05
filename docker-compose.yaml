@@ -29,6 +29,22 @@ services:
     volumes:
             - workspace:/var/workspace
             - ssh_dir:/root/.ssh
+
+  openmvs:
+    image: openmvs:latest
+    build:
+      context: ./openmvs
+      dockerfile: Dockerfile_CUDA
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+            - workspace:/var/workspace
+            - ssh_dir:/root/.ssh
 volumes:
         ssh_dir:
         workspace:
